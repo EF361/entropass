@@ -31,11 +31,11 @@ PassGen follows a modern, security-driven architecture that integrates CI pipeli
 
 ```mermaid
 graph TD
-    A[User Input] -->|Password Constraints| B[Validation Layer]
-    B -->|Valid Parameters| C[Web Crypto API (Entropy Generation)]
-    C --> D[Rejection Sampling]
-    D --> E[Generate Password]
-    F[Login/Signup UI] --> G[User Clipboard Handling]
+    A["User Input"] -->|Password Constraints| B["Validation Layer"]
+    B -->|Valid Parameters| C["Web Crypto API (Entropy Generation)"]
+    C --> D["Rejection Sampling"]
+    D --> E["Generate Password"]
+    F["Login/Signup UI"] --> G["User Clipboard Handling"]
     E -->|Password Output| G
 ```
 
