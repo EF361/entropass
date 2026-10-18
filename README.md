@@ -1,102 +1,102 @@
-# PassGen: Secure Password Generator
+# passgen
 
-![CI](https://img.shields.io/github/actions/workflow/status/EF361/passgen/ci.yml?branch=main&label=CI&logo=github&style=flat-square&color=success)
-![Next.js](https://img.shields.io/badge/Next.js-13-blue?style=flat-square)
-![TypeScript](https://img.shields.io/badge/TypeScript-4.9-blue?style=flat-square)
-![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.2-06B6D4?style=flat-square)
-![License](https://img.shields.io/github/license/EF361/passgen?style=flat-square)
-![Demo](https://img.shields.io/badge/Live-Demo-34D399?style=flat-square)
+![TypeScript](https://img.shields.io/badge/TypeScript-4.9-blue)
+![Next.js](https://img.shields.io/badge/Next.js-13-blue)
+![React](https://img.shields.io/badge/React-18-blue)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![CI/CD](https://img.shields.io/github/actions/workflow/status/EF361/passgen/ci.yml?label=CI/CD)
+![Code Coverage](https://img.shields.io/codecov/c/github/EF361/passgen?color=brightgreen)
 
----
+## Executive Summary
 
-### 🚀 Executive Summary
-PassGen is a robust, security-focused password generator built for developers and end-users who need strong, randomly generated passwords. It leverages modern cryptographic techniques via the Web Crypto API, ensuring resistance to predictable patterns or common biases.
+`passgen` is a cryptographically secure password generator that leverages modern web standards to ensure high-quality randomization and strong security guarantees. Built with TypeScript and Next.js, it provides developers and users with a fast, accessible, and customizable solution for generating secure, bias-free passwords.
 
----
+## Key Features
 
-### 🔑 Key Features
-- **Cryptographically Secure Generation**: Uses the Web Crypto API to generate entropy for passwords.
-- **Bias Avoidance**: Implements rejection sampling to mitigate modulo bias.
-- **Customizable Parameters**: Fine-grained controls for character classes, password lengths, and complexity requirements.
-- **Fail-Safe Defaults**: Ensures no character class is enabled or password lengths are invalid.
-- **Comprehensive Testing**: Property-based tests, unit tests, and type-checking integrated within CI workflows.
-- **Responsive UI**: Built with Next.js 13, React 18, and Tailwind CSS to ensure a seamless user experience.
-- **Security Auditing**: Threat modeling includes clipboard exposure, DOM persistence, JavaScript-managed state, and external risks.
-- **Hardening Practices**: Safe patterns for handling JavaScript state and reduction of client-side vulnerabilities.
+- ✅ **Cryptographically Strong Randomness**: Uses the Web Crypto API for robust entropy and defense against weak passwords.
+- ✅ **Bias-Free Sampling**: Implements rejection sampling and a secure shuffle algorithm to eliminate modulo bias.
+- ✅ **Character Class Enforcement**: Ensures at least one character from each selected class (uppercase, lowercase, numbers, and symbols).
+- ✅ **Clipboard Security**: Includes optional clipboard clearing and timeout behavior with full browser compatibility documentation.
+- ✅ **Property-Based Testing**: Validates password correctness and distribution using advanced statistical and property-based testing frameworks (e.g., Jest).
+- ✅ **Continuous Integration**: Automated testing, linting, type checking, and production build validation with GitHub Actions.
+- ✅ **Security Best Practices**: Adds Content Security Policy (CSP) headers, automated browser-level security tests, and OWASP-compliant practices.
+- ✅ **User-Centric Design**: Built with React 18 and TailwindCSS for excellent UI/UX, accessibility, and customization.
+- ✅ **Comprehensive Test Coverage**: Published coverage reports with 100% adherence to CI pipeline gates.
+- ✅ **Future-Proof Architecture**: Clear migration paths for upgrades to newer versions of Next.js, TypeScript, and other dependencies.
 
----
+## Architecture & Workflow
 
-### 🛠️ Architecture & Workflow
-PassGen follows a modern, security-driven architecture that integrates CI pipelines to automate testing, linting, and secure build processes.
+The `passgen` application is structured with a focus on modularity, security, and performance. Below is the high-level architecture of the system:
 
 ```mermaid
-graph TD
-    A["User Input"] -->|Password Constraints| B["Validation Layer"]
-    B -->|Valid Parameters| C["Web Crypto API (Entropy Generation)"]
-    C --> D["Rejection Sampling"]
-    D --> E["Generate Password"]
-    F["Login/Signup UI"] --> G["User Clipboard Handling"]
-    E -->|Password Output| G
+flowchart TD
+    A["User Interaction (UI)"] -->|"Password Options Input"| B["React Components (Next.js)"]
+    B["React Components (Next.js)"] -->|"Generate Password"| C["Password Generation Logic (TypeScript)"]
+    C["Password Generation Logic (TypeScript)"] -->|"Uses"| D["Web Crypto API (Entropy)"]
+    C["Password Generation Logic (TypeScript)"] -->|"Validation and Bias-Free Sampling"| E["Validation Module"]
+    C["Password Generation Logic (TypeScript)"] -->|"Clipboard Management"| F["Clipboard API"]
+    B["React Components (Next.js)"] -->|"UI Updates"| G["TailwindCSS Styling"]
+    G["TailwindCSS Styling"] -->|"Ensures"| A["User Interaction (UI)"]
+    C["Password Generation Logic (TypeScript)"] -->|"Tested With"| H["Automated Jest Tests"]
+    H["Automated Jest Tests"] -->|"Includes"| I["Property-Based and Statistical Tests"]
 ```
 
-**High-Level Workflow**:
-1. User selects password criteria (length, character classes, etc.).
-2. Validations ensure inputs are secure and constraints are met.
-3. Randomness is generated using the Web Crypto API.
-4. Passwords are bias-checked and shuffled securely before output.
-5. Passwords are displayed in the UI, with options to copy to clipboard safely.
+## Tech Stack & Tools Breakdown
+
+- **TypeScript 4.9**: Strongly typed programming for safer and maintainable code.
+- **Next.js 13**: Server-rendered React framework for dynamic web applications.
+- **React 18**: Component-based UI library for declarative and efficient user interfaces.
+- **Tailwind CSS**: Utility-first CSS framework for rapid UI design.
+- **Web Crypto API**: Provides cryptographically secure random values for password generation.
+- **Jest**: Robust testing library for unit, integration, and property-based tests.
+- **GitHub Actions**: CI/CD workflows for automated testing, linting, and deployment.
+
+## Quickstart / Installation
+
+Follow these steps to quickly set up and run `passgen`:
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/EF361/passgen.git
+   cd passgen
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Run the development server**:
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000) in your browser to preview the app.
+
+4. **Run tests and view coverage reports**:
+   ```bash
+   npm run test
+   npm run coverage
+   ```
+
+5. **Build for production**:
+   ```bash
+   npm run build
+   ```
+
+   The optimized production build will be in the `out` directory.
+
+6. **Lint and type-check the code**:
+   ```bash
+   npm run lint
+   npm run type-check
+   ```
+
+## Contributions
+
+Contributions are welcome! Please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) file for detailed guidelines on submitting issues, pull requests, or feature suggestions.
 
 ---
 
-### 🧑‍💻 Tech Stack & Tools
-- **Core Framework**: [Next.js 13](https://nextjs.org/)
-- **UI Library**: [React 18](https://react.dev/) + [Tailwind CSS](https://tailwindcss.com/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Cryptography**: [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API)
-- **Testing**: [Jest](https://jestjs.io/) with support for property-based testing.
-- **CI/CD**: GitHub Actions (type-checking, linting, tests, production builds, and lockfile security scanning).
-
----
-
-### ⚡ Quickstart / Installation
-```bash
-# Clone the repository
-git clone https://github.com/EF361/passgen.git
-cd passgen
-
-# Install dependencies
-npm install
-
-# Start the development server
-npm run dev
-
-# Run type-checking
-npm run type-check
-
-# Run linting
-npm run lint
-
-# Run tests (unit + property-based)
-npm test
-
-# Build for production
-npm run build
-```
-
-Visit the app running locally at `http://localhost:3000`.
-
----
-
-### 🔒 Threat Model
-1. **Clipboard Exposure**: Passwords copied to the clipboard remain vulnerable during the clipboard lifetime.
-2. **Browser Extensions**: Malicious extensions could intercept password data.
-3. **DOM Persistence**: The generated password is momentarily persisted in the DOM but never saved to permanent storage.
-4. **Screenshots**: Passwords visible in the UI can be captured by screenshots.
-5. **State Clearing**: JavaScript session data isn't cleared on application refresh — ensure manual clearing is implemented.
-
-PassGen mitigates risks by limiting password surface lifetime in the DOM and avoids processing password state beyond active sessions.
-
----
-
-### 🏆 About the Developer
-**Alicia Goh (EF361)**, a Senior Software Engineer, is dedicated to delivering secure and user-centric web applications. Her expertise in TypeScript, React, and security-driven architectures brings exceptional value to PassGen, a testament to her focus on developer tools and usability.
+This project was architected by **Alicia Goh (EF361)**, leveraging advanced engineering principles to deliver a secure and future-proof solution. If you find this project valuable, feel free to star ⭐ the repository and share your feedback!
