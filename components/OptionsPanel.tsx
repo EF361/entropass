@@ -70,29 +70,33 @@ export function OptionsPanel({ options, onChange }: OptionsPanelProps) {
   const characterOptions = [
     {
       id: "includeUppercase" as const,
-      title: "Uppercase",
-      description: "A-Z",
+      title: "Uppercase Letters",
+      badge: "A-Z",
+      description: "A B C D E F ... X Y Z",
       icon: <CaseUpper className="w-4 h-4" />,
       checked: options.includeUppercase,
     },
     {
       id: "includeLowercase" as const,
-      title: "Lowercase",
-      description: "a-z",
+      title: "Lowercase Letters",
+      badge: "a-z",
+      description: "a b c d e f ... x y z",
       icon: <CaseLower className="w-4 h-4" />,
       checked: options.includeLowercase,
     },
     {
       id: "includeNumbers" as const,
       title: "Numbers",
-      description: "0-9",
+      badge: "0-9",
+      description: "0 1 2 3 4 5 6 7 8 9",
       icon: <Hash className="w-4 h-4" />,
       checked: options.includeNumbers,
     },
     {
       id: "includeSymbols" as const,
-      title: "Symbols",
-      description: "!@#$%...",
+      title: "Symbols & Special",
+      badge: "!@#$",
+      description: "!@#$%^&*()_+-=[]{}|;:,.<>?",
       icon: <Sparkles className="w-4 h-4" />,
       checked: options.includeSymbols,
     },
@@ -182,10 +186,15 @@ export function OptionsPanel({ options, onChange }: OptionsPanelProps) {
 
           {/* Character type toggles */}
           <div className="space-y-2.5">
-            <h3 className="text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-zinc-400">
-              Character Sets
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-2.5">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-zinc-400">
+                Character Sets
+              </h3>
+              <span className="text-[11px] text-zinc-400 dark:text-zinc-500">
+                Select at least one
+              </span>
+            </div>
+            <div className="space-y-2">
               {characterOptions.map((item) => (
                 <button
                   key={item.id}
@@ -206,8 +215,19 @@ export function OptionsPanel({ options, onChange }: OptionsPanelProps) {
                       {item.icon}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">{item.title}</div>
-                      <div className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">{item.description}</div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                          {item.title}
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200/60 dark:border-zinc-700/60 shrink-0">
+                          {item.badge}
+                        </span>
+                      </div>
+                      <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                        <code className="bg-zinc-100 dark:bg-zinc-800/80 px-1.5 py-0.5 rounded text-[11px] font-mono break-all text-zinc-600 dark:text-zinc-300">
+                          {item.description}
+                        </code>
+                      </div>
                     </div>
                   </div>
                   <div className={`shrink-0 w-10 h-6 rounded-full transition-colors relative flex items-center p-0.5 ${
