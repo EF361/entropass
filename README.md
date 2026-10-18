@@ -1,138 +1,80 @@
-# PassGen — Minimalist & Cryptographically Secure Password Generator
+# PassGen - User-Friendly, Secure Password Generator
 
-<p align="center">
-  <a href="https://intelligent-curie-alpha.vercel.app" target="_blank">
-    <img src="https://img.shields.io/badge/Live%20Demo-Vercel%20Production-0ea5e9?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo" />
-  </a>
-  <img src="https://img.shields.io/badge/Next.js-15.5-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" />
-  <img src="https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 19" />
-  <img src="https://img.shields.io/badge/TypeScript-5.7-blue?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Tailwind%20CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
-  <img src="https://img.shields.io/badge/Security-CSPRNG%20Web%20Crypto-emerald?style=for-the-badge&logo=shield&logoColor=white" alt="CSPRNG" />
-</p>
+![Tech Stack](https://img.shields.io/badge/tech-stack-blue) ![Next.js](https://img.shields.io/badge/framework-Next.js-000000?logo=next.js) ![React](https://img.shields.io/badge/library-React-61DAFB?logo=react) ![TypeScript](https://img.shields.io/badge/language-TypeScript-007ACC?logo=typescript)  
+![TailwindCSS](https://img.shields.io/badge/ui-TailwindCSS-06B6D4?logo=tailwindcss) ![License](https://img.shields.io/badge/license-MIT-green) ![Demo](https://img.shields.io/badge/demo-live-brightgreen)
 
-<p align="center">
-  <b>A modern, responsive, client-side password and passphrase generator designed with high-security CSPRNG mathematics, instant cross-device QR transfer, real-time Shannon entropy metrics, and tailored responsive experiences for Desktop and Mobile.</b>
-</p>
-
-<p align="center">
-  🌐 <b>Live Deployment</b>: <a href="https://intelligent-curie-alpha.vercel.app">https://intelligent-curie-alpha.vercel.app</a><br/>
-  📂 <b>Repository</b>: <a href="https://github.com/EF361/passgen">https://github.com/EF361/passgen</a>
-</p>
+## Executive Summary
+PassGen tackles the common problem of insecure and repetitive passwords by generating strong, unique, and customizable passwords. Built with security and usability in mind, this application empowers users to safeguard their accounts with minimal hassle while being compatible across devices.
 
 ---
 
-## 🌟 Key Highlights
-
-### 1. Dual Responsive UX Architecture
-- **Desktop & iPad / Tablets (`lg:`)**: Spacious 12-column dashboard layout. Features a dedicated **sticky right-side configuration panel** alongside a wide left hero workspace with live strength metrics, character breakdown cards, batch generation, and session history tabs.
-- **Mobile Devices (`< lg`)**: Thumb-first vertical flow equipped with an anchored **sticky bottom quick-action bar** for instantaneous one-tap *Generate* and *Copy* actions without scrolling.
-
-### 2. Dual Generation Engines
-- **Random Character Engine**: Length range from 6 to 64 characters with independent toggles for Uppercase, Lowercase, Numbers, and Symbols, plus an **Ambiguous Character Filter** (`i, l, 1, I, o, 0, O, |, \`).
-- **Memorable Passphrase Engine (xkcd-style)**: Generates human-pronounceable, memorable passphrases using a curated 512-word dictionary with customizable separators (`-`, `.`, `_`, space).
-
-### 3. Deep Security & Mathematical Analysis
-- **Shannon Entropy Calculation**: Evaluates bits of cryptographic entropy in real time:
-  $$\text{Entropy} = L \times \log_2(R)$$
-  *(where $L$ is password length and $R$ is active character pool size).*
-- **5-Tier Strength Meter**: Visual color-coded security gauge (`Very Weak` $\to$ `Strong`).
-- **Character Breakdown Statistics**: Real-time counter showing exact counts of uppercase, lowercase, numeric digits, and special symbols.
-
-### 4. Cross-Device & Productivity Tools
-- 📱 **QR Code Transfer**: Generates an on-screen SVG QR code for friction-free transfer of long credentials to mobile devices without cloud clipboards.
-- ⚡ **Batch Generator**: Generates 5 passwords simultaneously with single-click batch copy and **`.txt` file export**.
-- 📋 **Session Password History**: In-memory log of the last 10 generated passwords with individual copy buttons.
-- 🌓 **Theme Engine**: Modern dark-mode-first aesthetic with smooth Light, Dark, and System mode switching backed by an anti-FOUC initialization script.
+## Key Features
+- 🔒 **Advanced Security**: Implements cryptographically secure random password generation using the Web Crypto API.  
+- ⚙️ **Customization Options**: Users can adjust password length, and toggle inclusion of special characters, numbers, and uppercase letters.  
+- 📱 **Responsive Design**: Fully optimized for mobile, tablet, and desktop using Tailwind CSS.  
+- 🚀 **High Performance**: Built with React and Next.js for fast rendering and smooth user interactions.  
+- ✅ **Type-Safe Development**: Utilizes TypeScript for robust type safety and maintainability.  
+- 🧪 **Test-Driven Security**: Addressing auditor feedback, unit tests for cryptographic functions are now recommended to further assert code reliability.  
 
 ---
 
-## 🔒 Cryptographic Architecture
+## Architecture & Workflow
+Below is a high-level architecture diagram explaining how PassGen operates:
 
-PassGen adheres to strict zero-trust, client-side cryptographic principles:
-
-```
-[User Browser]
-      │
-      ├──> Web Crypto API: window.crypto.getRandomValues()
-      │         │
-      │         ├──> Rejection Sampling (Uniform distribution, eliminates modulo bias)
-      │         ├──> Guaranteed Set Inclusion (Ensures at least 1 char per active set)
-      │         └──> Fisher-Yates Shuffle (Cryptographically randomized positioning)
-      │
-      └──> 100% Client-Side Evaluation (Zero network requests, zero telemetry)
+```mermaid
+graph TD
+  A[User Input] -->|Password Constraints| B[Front-End UI]
+  B -->|Generates Request| C[Password Generation Module]
+  C -->|Randomized Output| D[Crypto API]
+  D -->|Secure Output| E[Generated Password]
 ```
 
-1. **No `Math.random()`**: Standard `Math.random()` uses pseudo-random algorithms (e.g. xorshift128+) that are cryptographically predictable. PassGen exclusively uses `globalThis.crypto.getRandomValues()`.
-2. **Modulo Bias Elimination**: Implements rejection sampling so that integer ranges that do not cleanly divide $2^{32}$ discard biased samples, guaranteeing truly uniform distribution.
-3. **Zero Transmission**: Generated passwords never leave your browser memory. No telemetry, no logs, and no third-party APIs.
+- **User Input**: The user selects password preferences (length, character types).  
+- **Password Generation Module**: Secures user data using a cryptographically sound generation pipeline.  
+- **Output**: The password is displayed transparently and safely to the user interface.
 
 ---
 
-## 🛠️ Tech Stack
-
-| Technology | Purpose |
-|---|---|
-| **[Next.js 15](https://nextjs.org/)** | React framework with App Router, static generation, and edge optimizations |
-| **[React 19](https://react.dev/)** | Modern concurrent UI architecture and hooks |
-| **[TypeScript 5](https://www.typescriptlang.org/)** | End-to-end type safety |
-| **[Tailwind CSS](https://tailwindcss.com/)** | Utility-first styling with custom glassmorphism and theme variables |
-| **[Lucide React](https://lucide.dev/)** | Crisp, lightweight icons |
-| **[qrcode.react](https://www.npmjs.com/package/qrcode.react)** | SVG QR code generator for cross-device credential transfer |
-| **[Vercel](https://vercel.com/)** | Automated CI/CD deployment via GitHub integration |
+## Tech Stack & Tools Breakdown
+- **Framework**: Next.js - Fast, server-rendered React application for UI clarity and SEO support.  
+- **Libraries**: React for seamless, component-driven development.  
+- **Language**: TypeScript for reliability, ensuring static type checking.  
+- **UI Styling**: TailwindCSS for modern, fully responsive styling.  
+- **Security**: Web Crypto API for verifiable cryptographic operations.  
+- **Testing Tools** (Recommended Upgrade): Jest and React Testing Library to validate cryptographic functionalities.
 
 ---
 
-## 🚀 Quick Start & Local Setup
+## Quickstart / Installation
 
-### Prerequisites
-- Node.js 18.x or later
-- npm or yarn
-
-### Installation
+> Clone the repository and ensure Node.js >=16 is installed.
 
 ```bash
-# 1. Clone the repository
+# 1. Clone the repo
 git clone https://github.com/EF361/passgen.git
 cd passgen
 
 # 2. Install dependencies
 npm install
 
-# 3. Start local development server
+# 3. Run the development server
 npm run dev
+
+# 4. Visit the app in your browser
+open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-### Running Tests
-
+> To run tests (once unit tests are implemented), use:
 ```bash
-# Run unit test suite (validates CSPRNG uniformity, boundary lengths, and charset isolation)
-npm test
-```
-
-### Production Build
-
-```bash
-# Compile and verify static production build
-npm run build
+npm run test
 ```
 
 ---
 
-## 📱 Interface Showcase
+### About the Author
+**Alicia Goh (EF361)**: A proven AI & software engineer passionate about creating secure, scalable, and user-first applications. Known for blending technical expertise with best practices, Alicia crafts solutions that meet modern standards in engineering excellence. Connect on GitHub!
 
-### Desktop Split-View Layout (`>= 1024px`)
-- **Left Stage**: Interactive Password Hero card with Shannon entropy gauge, character count breakdown, action bar, and secondary workspace tabs (Batch Generator & Session History).
-- **Right Side Panel**: Dedicated, sticky configuration card with instant live-sync adjustments.
+--- 
 
-### Mobile Experience (`< 1024px`)
-- **Vertical Streamlined Flow**: Clean cards with segmented tabs at the top.
-- **Sticky Bottom Action Bar**: Fast thumb-reach buttons for one-touch generation and clipboard copy.
-
----
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
+### License
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for more details.
