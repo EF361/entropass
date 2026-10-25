@@ -1,6 +1,8 @@
 /**
- * A curated list of 512 common English words suitable for xkcd-style passphrases.
+ * A curated list of 565 common four-letter English words for xkcd-style passphrases.
  * Words chosen for clarity: short, memorable, unambiguous.
+ * This is the only word list in the project; lib/generator.ts imports it from here.
+ * Each word adds log2(565) ≈ 9.14 bits of entropy.
  */
 export const WORD_LIST: string[] = [
   "able","acid","aged","also","area","army","away","baby","back","ball",

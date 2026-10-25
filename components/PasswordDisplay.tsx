@@ -7,25 +7,16 @@ import { QRCodeSVG } from "qrcode.react";
 interface PasswordDisplayProps {
   password: string;
   onRegenerate?: () => void;
+  onCopy: (text: string) => Promise<boolean>;
 }
 
-export function PasswordDisplay({ password }: PasswordDisplayProps) {
+export function PasswordDisplay({ password, onCopy }: PasswordDisplayProps) {
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
 
   const handleCopy = async () => {
     if (!password) return;
-    try {
-      await navigator.clipboard.writeText(password);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      const textarea = document.createElement("textarea");
-      textarea.value = password;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
+    if (await onCopy(password)) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }

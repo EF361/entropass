@@ -1,3 +1,7 @@
+import { WORD_LIST } from "./wordlist.ts";
+
+export { WORD_LIST };
+
 export interface GeneratorOptions {
   length: number;
   includeUppercase: boolean;
@@ -27,73 +31,11 @@ export interface PasswordStats {
   total: number;
 }
 
-/**
- * Curated 512-word list for xkcd-style passphrases.
- */
-export const WORD_LIST: string[] = [
-  "able","acid","aged","also","area","army","away","baby","back","ball",
-  "band","bank","base","bath","bear","beat","been","bell","best","bird",
-  "bite","blow","blue","boat","body","bomb","bond","bone","book","born",
-  "both","bowl","bulk","burn","calm","came","camp","care","case","cash",
-  "cast","cave","cell","chin","chip","city","clap","clay","clip","club",
-  "coal","coat","code","coil","cold","come","cook","cool","cope","copy",
-  "core","corn","cost","coup","crew","crop","cure","curl","cute","dark",
-  "data","date","dawn","deal","dear","debt","deep","deny","desk","dial",
-  "diet","disk","does","done","door","dose","down","draw","drop","drug",
-  "drum","dual","dull","dump","dust","duty","each","earn","ease","east",
-  "edge","else","even","ever","evil","exam","exit","face","fact","fail",
-  "fair","fall","fame","farm","fast","fate","fear","feed","feel","fell",
-  "felt","file","fill","film","find","fire","fish","fist","five","flag",
-  "flat","flew","flip","flow","foam","fold","folk","fond","font","food",
-  "fool","foot","ford","fore","fork","form","fort","four","free","from",
-  "fuel","full","fund","fury","fuse","gain","game","gate","gave","gear",
-  "gift","girl","give","glad","glow","glue","goes","gold","golf","gone",
-  "good","grab","gray","grew","grid","grin","grip","grow","gulf","guru",
-  "gust","half","hall","hand","hang","hard","harm","hash","hate","have",
-  "head","heal","heap","heat","heel","held","help","herb","here","hero",
-  "high","hill","hint","hire","hold","hole","holy","home","hood","hook",
-  "hope","horn","hour","huge","hulk","hung","hunt","hurt","icon","idea",
-  "idle","into","iris","iron","item","jail","jerk","join","joke","jump",
-  "jury","just","keep","kick","kind","king","kiss","knee","knew","knit",
-  "know","lack","lake","lamp","land","lane","last","late","lawn","lead",
-  "leaf","lean","left","lend","lens","lift","like","lime","line","link",
-  "lion","list","live","load","loan","lock","loft","lone","long","look",
-  "loop","lore","lose","loss","lost","love","luck","lung","made","mail",
-  "main","make","male","mall","malt","many","mark","mars","mask","mass",
-  "mast","math","maze","meal","mean","meat","meet","melt","menu","mesh",
-  "mild","milk","mind","mine","miss","mode","mold","moon","more","most",
-  "move","much","myth","nail","name","navy","need","nest","next","nice",
-  "nick","nine","node","none","norm","nose","note","nova","null","oath",
-  "once","only","open","oral","oven","over","pace","pack","page","pain",
-  "pair","palm","park","part","pass","past","path","peak","peel","peer",
-  "pick","pier","pine","pipe","plan","play","plot","plug","plus","poem",
-  "poet","pole","poll","pond","pool","poor","port","pose","post","pour",
-  "prep","prey","prod","pull","pump","pure","push","quiz","race","rack",
-  "rage","rail","rain","rank","rate","read","real","reap","reef","reel",
-  "rely","rent","rest","rice","rich","ride","ring","riot","rise","risk",
-  "road","roam","roar","rock","role","roll","roof","room","root","rope",
-  "rose","rows","rule","rush","rust","safe","sage","sail","salt","sand",
-  "save","scan","seed","self","sell","send","sets","shed","ship","shoe",
-  "shop","shot","show","shut","side","sign","silk","sing","sink","site",
-  "size","skin","skip","slam","slim","slip","slow","slug","snap","snow",
-  "soak","sock","soft","soil","sole","some","song","sort","soul","soup",
-  "span","spin","spot","spur","star","stay","step","stem","stew","stop",
-  "such","suit","surf","swap","swim","tale","talk","tall","tank","tape",
-  "task","team","tend","term","test","text","than","that","them","then",
-  "they","thin","this","tide","time","tire","toll","tone","tool","tour",
-  "town","trap","tree","trim","trio","trip","true","tube","tune","turn",
-  "twin","type","unit","upon","used","user","vain","vale","vast","very",
-  "view","vine","void","volt","vote","wade","wage","wake","walk","wall",
-  "ward","warm","warp","wash","wave","wear","weed","well","went","were",
-  "west","what","when","whom","wide","wife","wild","will","wind","wine",
-  "wire","wise","wish","with","wolf","word","wore","work","worn","wrap",
-  "yard","year","your","zero","zone",
-];
-
 const UPPERCASE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const LOWERCASE_CHARS = "abcdefghijklmnopqrstuvwxyz";
 const NUMBER_CHARS = "0123456789";
 const SYMBOL_CHARS = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+const PASSPHRASE_SYMBOL_CHARS = "!@#$%^&*?";
 
 // Ambiguous characters commonly confused with each other
 const AMBIGUOUS_CHARS = new Set(["i", "l", "1", "I", "o", "0", "O", "|", "`", "'", '"']);
@@ -134,6 +76,40 @@ function secureShuffle(array: string[]): string[] {
     [result[i], result[j]] = [result[j], result[i]];
   }
   return result;
+}
+
+/** Digits a passphrase can inject (falls back to all digits if filtering leaves none). */
+function getPassphraseDigitPool(excludeAmbiguous: boolean): string {
+  const digits = excludeAmbiguous ? filterAmbiguous(NUMBER_CHARS) : NUMBER_CHARS;
+  return digits.length > 0 ? digits : NUMBER_CHARS;
+}
+
+function getPassphraseSymbolPool(excludeAmbiguous: boolean): string {
+  return excludeAmbiguous ? filterAmbiguous(PASSPHRASE_SYMBOL_CHARS) : PASSPHRASE_SYMBOL_CHARS;
+}
+
+/** The non-empty character sets a password is built from, after ambiguous filtering. */
+function getPasswordCharSets(options: GeneratorOptions): string[] {
+  const { includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeAmbiguous } = options;
+
+  let upper = includeUppercase ? UPPERCASE_CHARS : "";
+  let lower = includeLowercase ? LOWERCASE_CHARS : "";
+  let numbers = includeNumbers ? NUMBER_CHARS : "";
+  let symbols = includeSymbols ? SYMBOL_CHARS : "";
+
+  if (excludeAmbiguous) {
+    upper = filterAmbiguous(upper);
+    lower = filterAmbiguous(lower);
+    numbers = filterAmbiguous(numbers);
+    symbols = filterAmbiguous(symbols);
+  }
+
+  const selectedSets: string[] = [];
+  if (upper) selectedSets.push(upper);
+  if (lower) selectedSets.push(lower);
+  if (numbers) selectedSets.push(numbers);
+  if (symbols) selectedSets.push(symbols);
+  return selectedSets;
 }
 
 export interface PassphraseOptions {
@@ -188,15 +164,14 @@ export function generatePassphrase(
   // Inject numbers if requested (e.g. Blue-Lion-Star42-Peak)
   if (includeNumbers && words.length > 0) {
     const targetIdx = getSecureRandomInt(words.length);
-    let digitChars = excludeAmbiguous ? filterAmbiguous(NUMBER_CHARS) : NUMBER_CHARS;
-    if (digitChars.length === 0) digitChars = NUMBER_CHARS;
+    const digitChars = getPassphraseDigitPool(excludeAmbiguous);
     const num = `${digitChars[getSecureRandomInt(digitChars.length)]}${digitChars[getSecureRandomInt(digitChars.length)]}`;
     words[targetIdx] = `${words[targetIdx]}${num}`;
   }
 
   // Inject symbols if requested (e.g. Blue!-Lion-Star42-Peak)
   if (includeSymbols && words.length > 0) {
-    const symbolPool = excludeAmbiguous ? filterAmbiguous("!@#$%^&*?") : "!@#$%^&*?";
+    const symbolPool = getPassphraseSymbolPool(excludeAmbiguous);
     if (symbolPool.length > 0) {
       const sym = symbolPool[getSecureRandomInt(symbolPool.length)];
       // Choose an index different from target index if possible
@@ -220,32 +195,8 @@ export function generatePassword(options: GeneratorOptions): string {
     });
   }
 
-  const {
-    length,
-    includeUppercase,
-    includeLowercase,
-    includeNumbers,
-    includeSymbols,
-    excludeAmbiguous,
-  } = options;
-
-  let upper = includeUppercase ? UPPERCASE_CHARS : "";
-  let lower = includeLowercase ? LOWERCASE_CHARS : "";
-  let numbers = includeNumbers ? NUMBER_CHARS : "";
-  let symbols = includeSymbols ? SYMBOL_CHARS : "";
-
-  if (excludeAmbiguous) {
-    upper = filterAmbiguous(upper);
-    lower = filterAmbiguous(lower);
-    numbers = filterAmbiguous(numbers);
-    symbols = filterAmbiguous(symbols);
-  }
-
-  const selectedSets: string[] = [];
-  if (upper) selectedSets.push(upper);
-  if (lower) selectedSets.push(lower);
-  if (numbers) selectedSets.push(numbers);
-  if (symbols) selectedSets.push(symbols);
+  const { length } = options;
+  const selectedSets = getPasswordCharSets(options);
 
   // If no character set is selected, return empty
   if (selectedSets.length === 0 || length <= 0) {
@@ -273,6 +224,35 @@ export function generatePassword(options: GeneratorOptions): string {
   return secureShuffle(passwordChars).join("");
 }
 
+/**
+ * Entropy in bits, based on how the password is generated (not on how the output looks).
+ * Separator and Title Case add 0 bits because they are fixed, known settings.
+ */
+export function calculateEntropy(options: GeneratorOptions): number {
+  if (options.mode === "passphrase") {
+    const words = options.passphraseWords;
+    if (words <= 0) return 0;
+
+    let entropy = words * Math.log2(WORD_LIST.length);
+    if (options.includeNumbers) {
+      // Which word gets the digits, plus two random digits
+      entropy += Math.log2(words) + 2 * Math.log2(getPassphraseDigitPool(options.excludeAmbiguous).length);
+    }
+    if (options.includeSymbols) {
+      const symbolPoolSize = getPassphraseSymbolPool(options.excludeAmbiguous).length;
+      if (symbolPoolSize > 0) {
+        // Which symbol, plus which word gets it
+        entropy += Math.log2(symbolPoolSize) + Math.log2(words);
+      }
+    }
+    return entropy;
+  }
+
+  const poolSize = getPasswordCharSets(options).join("").length;
+  if (poolSize === 0 || options.length <= 0) return 0;
+  return options.length * Math.log2(poolSize);
+}
+
 export function getPasswordStats(password: string): PasswordStats {
   let uppercase = 0, lowercase = 0, digits = 0, symbols = 0;
   for (const char of password) {
@@ -284,8 +264,8 @@ export function getPasswordStats(password: string): PasswordStats {
   return { uppercase, lowercase, digits, symbols, total: password.length };
 }
 
-export function calculatePasswordStrength(password: string): PasswordStrength {
-  if (!password) {
+export function calculatePasswordStrength(entropy: number): PasswordStrength {
+  if (!(entropy > 0)) {
     return {
       score: 0,
       label: "Very Weak",
@@ -296,59 +276,52 @@ export function calculatePasswordStrength(password: string): PasswordStrength {
     };
   }
 
-  let poolSize = 0;
-  if (/[a-z]/.test(password)) poolSize += 26;
-  if (/[A-Z]/.test(password)) poolSize += 26;
-  if (/[0-9]/.test(password)) poolSize += 10;
-  if (/[^a-zA-Z0-9]/.test(password)) poolSize += 32;
-
-  // Approximate Shannon entropy: length * log2(poolSize)
-  const entropy = Math.round(password.length * (poolSize > 0 ? Math.log2(poolSize) : 0));
-
-  let score: 0 | 1 | 2 | 3 | 4;
-  let label: "Very Weak" | "Weak" | "Fair" | "Good" | "Strong";
-  let colorClass: string;
-  let bgClass: string;
-  let percentage: number;
-
-  if (password.length < 8 || entropy < 30) {
-    score = 1;
-    label = "Very Weak";
-    colorClass = "text-rose-500 dark:text-rose-400";
-    bgClass = "bg-rose-500";
-    percentage = 20;
-  } else if (password.length < 10 || entropy < 50) {
-    score = 1;
-    label = "Weak";
-    colorClass = "text-amber-500 dark:text-amber-400";
-    bgClass = "bg-amber-500";
-    percentage = 40;
-  } else if (password.length < 14 || entropy < 70) {
-    score = 2;
-    label = "Fair";
-    colorClass = "text-yellow-500 dark:text-yellow-400";
-    bgClass = "bg-yellow-500";
-    percentage = 65;
-  } else if (password.length < 18 || entropy < 90) {
-    score = 3;
-    label = "Good";
-    colorClass = "text-sky-500 dark:text-sky-400";
-    bgClass = "bg-sky-500";
-    percentage = 85;
-  } else {
-    score = 4;
-    label = "Strong";
-    colorClass = "text-emerald-500 dark:text-emerald-400";
-    bgClass = "bg-emerald-500";
-    percentage = 100;
+  if (entropy < 40) {
+    return {
+      score: 0,
+      label: "Very Weak",
+      colorClass: "text-rose-500 dark:text-rose-400",
+      bgClass: "bg-rose-500",
+      percentage: 20,
+      entropy,
+    };
   }
-
+  if (entropy < 60) {
+    return {
+      score: 1,
+      label: "Weak",
+      colorClass: "text-amber-500 dark:text-amber-400",
+      bgClass: "bg-amber-500",
+      percentage: 40,
+      entropy,
+    };
+  }
+  if (entropy < 80) {
+    return {
+      score: 2,
+      label: "Fair",
+      colorClass: "text-yellow-500 dark:text-yellow-400",
+      bgClass: "bg-yellow-500",
+      percentage: 65,
+      entropy,
+    };
+  }
+  if (entropy < 100) {
+    return {
+      score: 3,
+      label: "Good",
+      colorClass: "text-sky-500 dark:text-sky-400",
+      bgClass: "bg-sky-500",
+      percentage: 85,
+      entropy,
+    };
+  }
   return {
-    score,
-    label,
-    colorClass,
-    bgClass,
-    percentage,
+    score: 4,
+    label: "Strong",
+    colorClass: "text-emerald-500 dark:text-emerald-400",
+    bgClass: "bg-emerald-500",
+    percentage: 100,
     entropy,
   };
 }

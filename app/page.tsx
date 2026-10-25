@@ -3,12 +3,14 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   generatePassword,
+  calculateEntropy,
   calculatePasswordStrength,
   getPasswordStats,
   GeneratorOptions,
   PasswordStrength,
   PasswordStats,
 } from "@/lib/generator";
+import { useClipboard } from "@/lib/useClipboard";
 import { PasswordDisplay } from "@/components/PasswordDisplay";
 import { StrengthMeter } from "@/components/StrengthMeter";
 import { OptionsPanel } from "@/components/OptionsPanel";
@@ -28,6 +30,7 @@ import {
   Copy,
   Check,
   Sparkles,
+  Timer,
 } from "lucide-react";
 
 const MAX_HISTORY = 10;
@@ -56,6 +59,16 @@ const EMPTY_STRENGTH: PasswordStrength = {
 type MobileTab = "generator" | "batch" | "history";
 type DesktopTab = "batch" | "history";
 
+function ClipboardCountdown({ secondsLeft }: { secondsLeft: number | null }) {
+  if (secondsLeft === null) return null;
+  return (
+    <p className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 tabular-nums">
+      <Timer className="w-3.5 h-3.5 text-sky-500" />
+      <span>Clipboard clears in {secondsLeft}s</span>
+    </p>
+  );
+}
+
 export default function Home() {
   const [options, setOptions] = useState<GeneratorOptions>(DEFAULT_OPTIONS);
   const [password, setPassword] = useState<string>("");
@@ -73,6 +86,8 @@ export default function Home() {
   const [desktopTab, setDesktopTab] = useState<DesktopTab>("batch");
   const [bottomCopied, setBottomCopied] = useState(false);
   const [bottomSpinning, setBottomSpinning] = useState(false);
+  const [clearClipboard, setClearClipboard] = useState(true);
+  const { copy, secondsLeft } = useClipboard(clearClipboard);
   const idCounter = useRef(0);
 
   const handleBottomGenerate = () => {
@@ -83,7 +98,7 @@ export default function Home() {
 
   const handleGenerate = useCallback(() => {
     const newPass = generatePassword(options);
-    const newStrength = calculatePasswordStrength(newPass);
+    const newStrength = calculatePasswordStrength(newPass ? calculateEntropy(options) : 0);
     const newStats = getPasswordStats(newPass);
     setPassword(newPass);
     setStrength(newStrength);
@@ -109,17 +124,7 @@ export default function Home() {
 
   const handleCopyPassword = async () => {
     if (!password) return;
-    try {
-      await navigator.clipboard.writeText(password);
-      setBottomCopied(true);
-      setTimeout(() => setBottomCopied(false), 2000);
-    } catch {
-      const textarea = document.createElement("textarea");
-      textarea.value = password;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
+    if (await copy(password)) {
       setBottomCopied(true);
       setTimeout(() => setBottomCopied(false), 2000);
     }
@@ -127,12 +132,12 @@ export default function Home() {
 
   const handleExportSingle = () => {
     if (!password) return;
-    const content = `PassGen — Secure Password Export\nGenerated: ${new Date().toLocaleString()}\n\nPassword: ${password}\nLength: ${password.length}\nEntropy: ~${strength.entropy} bits\nStrength: ${strength.label}\n\n---\nGenerated securely using CSPRNG (crypto.getRandomValues)\nhttps://intelligent-curie-alpha.vercel.app`;
+    const content = `EntroPass — Secure Password Export\nGenerated: ${new Date().toLocaleString()}\n\nPassword: ${password}\nLength: ${password.length}\nEntropy: ≈ ${Math.round(strength.entropy)} bits (based on generation settings)\nStrength: ${strength.label}\n\n---\nGenerated securely using CSPRNG (crypto.getRandomValues)\nhttps://intelligent-curie-alpha.vercel.app`;
     const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `passgen-${Date.now()}.txt`;
+    a.download = `entropass-${Date.now()}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -172,13 +177,13 @@ export default function Home() {
           </div>
           <div>
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-              PassGen
+              EntroPass
               <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800/50">
                 CSPRNG
               </span>
             </h1>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Clean &amp; secure cryptographic password generator
+              A password generator that tells you the truth about strength.
             </p>
           </div>
         </div>
@@ -206,9 +211,11 @@ export default function Home() {
                 </span>
               </div>
 
-              <PasswordDisplay password={password} onRegenerate={handleGenerate} />
+              <PasswordDisplay password={password} onRegenerate={handleGenerate} onCopy={copy} />
 
               <StrengthMeter strength={strength} stats={stats} showStats={showStats} />
+
+              <ClipboardCountdown secondsLeft={secondsLeft} />
 
               {/* Action buttons */}
               <div className="flex items-center gap-3 pt-2">
@@ -267,9 +274,9 @@ export default function Home() {
               </div>
 
               <div className="p-6">
-                {desktopTab === "batch" && <BatchPanel options={options} />}
+                {desktopTab === "batch" && <BatchPanel options={options} onCopy={copy} />}
                 {desktopTab === "history" && (
-                  <PasswordHistory history={history} onClear={() => setHistory([])} />
+                  <PasswordHistory history={history} onClear={() => setHistory([])} onCopy={copy} />
                 )}
               </div>
             </div>
@@ -292,7 +299,12 @@ export default function Home() {
                 </span>
               </div>
 
-              <OptionsPanel options={options} onChange={setOptions} />
+              <OptionsPanel
+                options={options}
+                onChange={setOptions}
+                clearClipboard={clearClipboard}
+                onClearClipboardChange={setClearClipboard}
+              />
             </aside>
           </div>
         </div>
@@ -301,9 +313,11 @@ export default function Home() {
         <div className="lg:hidden space-y-4 max-w-xl mx-auto">
           {/* Mobile Password Hero Card */}
           <div className="w-full bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-200/80 dark:border-zinc-800/80 rounded-3xl p-5 shadow-xl shadow-zinc-950/5 dark:shadow-black/20 space-y-4">
-            <PasswordDisplay password={password} onRegenerate={handleGenerate} />
+            <PasswordDisplay password={password} onRegenerate={handleGenerate} onCopy={copy} />
 
             <StrengthMeter strength={strength} stats={stats} showStats={showStats} />
+
+            <ClipboardCountdown secondsLeft={secondsLeft} />
 
             {/* Mobile Utility Actions (Stats & Export) */}
             <div className="flex items-center gap-2.5 pt-1">
@@ -354,11 +368,16 @@ export default function Home() {
 
             <div className="p-5">
               {mobileTab === "generator" && (
-                <OptionsPanel options={options} onChange={setOptions} />
+                <OptionsPanel
+                  options={options}
+                  onChange={setOptions}
+                  clearClipboard={clearClipboard}
+                  onClearClipboardChange={setClearClipboard}
+                />
               )}
-              {mobileTab === "batch" && <BatchPanel options={options} />}
+              {mobileTab === "batch" && <BatchPanel options={options} onCopy={copy} />}
               {mobileTab === "history" && (
-                <PasswordHistory history={history} onClear={() => setHistory([])} />
+                <PasswordHistory history={history} onClear={() => setHistory([])} onCopy={copy} />
               )}
             </div>
           </div>
@@ -417,7 +436,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="relative w-full max-w-6xl xl:max-w-7xl py-4 text-center text-xs text-zinc-400 dark:text-zinc-500">
         <p>
-          PassGen • Built with Next.js, Tailwind CSS &amp; Lucide •{" "}
+          EntroPass • Built with Next.js, Tailwind CSS &amp; Lucide •{" "}
           <a
             href="https://github.com/EF361/passgen"
             target="_blank"
