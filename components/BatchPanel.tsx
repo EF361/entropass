@@ -40,7 +40,7 @@ export function BatchPanel({ options, onCopy }: BatchPanelProps) {
 
   const handleDownload = () => {
     const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
-    const content = `EntroPass — Batch Export\nGenerated: ${new Date().toLocaleString()}\n\n${passwords.join("\n")}\n\n---\nGenerated securely using CSPRNG (crypto.getRandomValues)\nhttps://intelligent-curie-alpha.vercel.app`;
+    const content = `EntroPass — Batch Export\nGenerated: ${new Date().toLocaleString()}\n\n${passwords.join("\n")}\n\n---\nGenerated securely using CSPRNG (crypto.getRandomValues)\nhttps://entropass.vercel.app`;
     const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
