@@ -1,7 +1,10 @@
 "use client";
 
-import { ShieldCheck, ShieldAlert, Shield, CaseUpper, CaseLower, Hash, Sparkles } from "lucide-react";
+import { useId } from "react";
+import { ShieldCheck, ShieldAlert, Shield, CaseUpper, CaseLower, Hash, Sparkles, Info } from "lucide-react";
 import { PasswordStrength, PasswordStats } from "@/lib/generator";
+
+const ENTROPY_HINT = "Based on how the password was generated, not how it looks.";
 
 interface StrengthMeterProps {
   strength: PasswordStrength;
@@ -11,6 +14,8 @@ interface StrengthMeterProps {
 
 export function StrengthMeter({ strength, stats, showStats }: StrengthMeterProps) {
   const { score, label, colorClass, bgClass, entropy } = strength;
+  const tooltipId = useId();
+  const hasValue = entropy > 0;
 
   const getStrengthIcon = () => {
     if (score >= 4) {
@@ -37,15 +42,32 @@ export function StrengthMeter({ strength, stats, showStats }: StrengthMeterProps
           <span>Strength:</span>
           <span className={`font-semibold ${colorClass}`}>{label}</span>
         </div>
-        <span className="text-zinc-400 dark:text-zinc-500 tabular-nums">
-          {entropy > 0 ? `~${entropy} bits entropy` : "0 bits"}
-        </span>
+        <div className="flex items-center gap-1 text-zinc-400 dark:text-zinc-500 tabular-nums">
+          <span>≈ {Math.round(entropy)} bits</span>
+          <span className="relative group inline-flex">
+            <button
+              type="button"
+              aria-label="How strength is calculated"
+              aria-describedby={tooltipId}
+              className="p-0.5 rounded-full text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 cursor-help"
+            >
+              <Info className="w-3.5 h-3.5" />
+            </button>
+            <span
+              id={tooltipId}
+              role="tooltip"
+              className="pointer-events-none absolute right-0 top-full mt-1.5 z-20 w-52 rounded-lg bg-zinc-900 dark:bg-zinc-100 px-2.5 py-1.5 text-[11px] font-normal leading-snug text-white dark:text-zinc-900 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-opacity"
+            >
+              {ENTROPY_HINT}
+            </span>
+          </span>
+        </div>
       </div>
 
-      {/* Segmented bar */}
-      <div className="grid grid-cols-4 gap-1.5 h-1.5 w-full">
-        {[1, 2, 3, 4].map((step) => {
-          const isActive = score >= step;
+      {/* Segmented bar: one segment per band, so even "Very Weak" shows one */}
+      <div className="grid grid-cols-5 gap-1.5 h-1.5 w-full">
+        {[0, 1, 2, 3, 4].map((step) => {
+          const isActive = hasValue && score >= step;
           return (
             <div
               key={step}

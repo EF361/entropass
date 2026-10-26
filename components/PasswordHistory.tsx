@@ -12,20 +12,18 @@ interface PasswordEntry {
 interface PasswordHistoryProps {
   history: PasswordEntry[];
   onClear: () => void;
+  onCopy: (text: string) => Promise<boolean>;
 }
 
 export type { PasswordEntry };
 
-export function PasswordHistory({ history, onClear }: PasswordHistoryProps) {
+export function PasswordHistory({ history, onClear, onCopy }: PasswordHistoryProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const handleCopy = async (entry: PasswordEntry) => {
-    try {
-      await navigator.clipboard.writeText(entry.password);
+    if (await onCopy(entry.password)) {
       setCopiedId(entry.id);
       setTimeout(() => setCopiedId(null), 2000);
-    } catch {
-      /* ignore */
     }
   };
 

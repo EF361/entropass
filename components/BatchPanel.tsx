@@ -6,9 +6,10 @@ import { generatePassword, GeneratorOptions } from "@/lib/generator";
 
 interface BatchPanelProps {
   options: GeneratorOptions;
+  onCopy: (text: string) => Promise<boolean>;
 }
 
-export function BatchPanel({ options }: BatchPanelProps) {
+export function BatchPanel({ options, onCopy }: BatchPanelProps) {
   const [passwords, setPasswords] = useState<string[]>([]);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [allCopied, setAllCopied] = useState(false);
@@ -24,30 +25,27 @@ export function BatchPanel({ options }: BatchPanelProps) {
   };
 
   const handleCopyOne = async (pw: string, idx: number) => {
-    try {
-      await navigator.clipboard.writeText(pw);
+    if (await onCopy(pw)) {
       setCopiedIdx(idx);
       setTimeout(() => setCopiedIdx(null), 2000);
-    } catch { /* ignore */ }
+    }
   };
 
   const handleCopyAll = async () => {
-    const text = passwords.join("\n");
-    try {
-      await navigator.clipboard.writeText(text);
+    if (await onCopy(passwords.join("\n"))) {
       setAllCopied(true);
       setTimeout(() => setAllCopied(false), 2000);
-    } catch { /* ignore */ }
+    }
   };
 
   const handleDownload = () => {
     const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
-    const content = `PassGen — Batch Export\nGenerated: ${new Date().toLocaleString()}\n\n${passwords.join("\n")}\n\n---\nGenerated securely using CSPRNG (crypto.getRandomValues)\nhttps://intelligent-curie-alpha.vercel.app`;
+    const content = `EntroPass — Batch Export\nGenerated: ${new Date().toLocaleString()}\n\n${passwords.join("\n")}\n\n---\nGenerated securely using CSPRNG (crypto.getRandomValues)\nhttps://intelligent-curie-alpha.vercel.app`;
     const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `passgen-batch-${timestamp}.txt`;
+    a.download = `entropass-batch-${timestamp}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };

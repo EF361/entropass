@@ -2,11 +2,11 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PassGen — Clean & Secure Password Generator",
+  title: "EntroPass — Honest Password Generator",
   description:
-    "A clean, minimal, cryptographically secure password generator. Customize length, symbols, numbers, and exclude ambiguous characters with real-time entropy estimation.",
-  keywords: ["PassGen", "password generator", "security", "cryptography", "minimalist", "vercel"],
-  authors: [{ name: "PassGen" }],
+    "A password generator that tells you the truth about strength. Strength is calculated from how the password was generated, not how it looks.",
+  keywords: ["EntroPass", "password generator", "passphrase", "entropy", "security", "cryptography"],
+  authors: [{ name: "Alicia Goh" }],
   icons: {
     icon: "/icon.svg",
     shortcut: "/icon.svg",

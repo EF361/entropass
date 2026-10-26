@@ -11,11 +11,14 @@ import {
   Plus,
   KeyRound,
   AlignLeft,
+  ClipboardX,
 } from "lucide-react";
 
 interface OptionsPanelProps {
   options: GeneratorOptions;
   onChange: (options: GeneratorOptions) => void;
+  clearClipboard: boolean;
+  onClearClipboardChange: (value: boolean) => void;
 }
 
 const SEPARATOR_OPTIONS = [
@@ -29,7 +32,12 @@ const SEPARATOR_OPTIONS = [
   { value: " ", label: "Space ( )" },
 ];
 
-export function OptionsPanel({ options, onChange }: OptionsPanelProps) {
+export function OptionsPanel({
+  options,
+  onChange,
+  clearClipboard,
+  onClearClipboardChange,
+}: OptionsPanelProps) {
   const isPassphrase = options.mode === "passphrase";
 
   const updateOption = <K extends keyof GeneratorOptions>(
@@ -430,6 +438,36 @@ export function OptionsPanel({ options, onChange }: OptionsPanelProps) {
           </div>
         </div>
       )}
+
+      {/* Clipboard auto-clear toggle (both modes) */}
+      <button
+        type="button"
+        role="switch"
+        aria-checked={clearClipboard}
+        onClick={() => onClearClipboardChange(!clearClipboard)}
+        className={`w-full flex items-center justify-between p-3.5 rounded-2xl border text-left transition-all duration-200 cursor-pointer ${
+          clearClipboard
+            ? "bg-white dark:bg-zinc-900 border-sky-500/60 dark:border-sky-500/50 shadow-sm"
+            : "bg-zinc-50/50 dark:bg-zinc-900/30 border-zinc-200/60 dark:border-zinc-800/60 hover:border-zinc-300 dark:hover:border-zinc-700"
+        }`}
+      >
+        <div className="flex items-center gap-3 min-w-0 flex-1 mr-3">
+          <div className={`p-2 rounded-xl transition-colors shrink-0 ${
+            clearClipboard ? "bg-sky-500/10 text-sky-600 dark:text-sky-400" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400"
+          }`}>
+            <ClipboardX className="w-4 h-4" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Clear clipboard after 30s</div>
+            <div className="text-xs text-zinc-500 dark:text-zinc-400">Only while this page is focused</div>
+          </div>
+        </div>
+        <div className={`shrink-0 w-10 h-6 rounded-full transition-colors relative flex items-center p-0.5 ${
+          clearClipboard ? "bg-sky-500" : "bg-zinc-300 dark:bg-zinc-700"
+        }`}>
+          <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${clearClipboard ? "translate-x-4" : "translate-x-0"}`} />
+        </div>
+      </button>
     </div>
   );
 }
