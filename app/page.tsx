@@ -132,7 +132,7 @@ export default function Home() {
 
   const handleExportSingle = () => {
     if (!password) return;
-    const content = `EntroPass — Secure Password Export\nGenerated: ${new Date().toLocaleString()}\n\nPassword: ${password}\nLength: ${password.length}\nEntropy: ≈ ${Math.round(strength.entropy)} bits (based on generation settings)\nStrength: ${strength.label}\n\n---\nGenerated securely using CSPRNG (crypto.getRandomValues)\nhttps://intelligent-curie-alpha.vercel.app`;
+    const content = `EntroPass — Secure Password Export\nGenerated: ${new Date().toLocaleString()}\n\nPassword: ${password}\nLength: ${password.length}\nEntropy: ≈ ${Math.round(strength.entropy)} bits (based on generation settings)\nStrength: ${strength.label}\n\n---\nGenerated securely using CSPRNG (crypto.getRandomValues)\nhttps://entropass.vercel.app`;
     const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -447,7 +447,7 @@ export default function Home() {
           </a>{" "}
           •{" "}
           <a
-            href="https://intelligent-curie-alpha.vercel.app"
+            href="https://entropass.vercel.app"
             target="_blank"
             rel="noopener noreferrer"
             className="underline underline-offset-2 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"

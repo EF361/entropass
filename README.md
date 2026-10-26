@@ -9,7 +9,7 @@ A password generator that tells you the truth about strength.
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-38bdf8)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-**Live demo:** [intelligent-curie-alpha.vercel.app](https://intelligent-curie-alpha.vercel.app)
+**Live demo:** [entropass.vercel.app](https://entropass.vercel.app)
 
 ![EntroPass generating a 16-character password rated Strong at about 103 bits](docs/screenshot.png)
 
